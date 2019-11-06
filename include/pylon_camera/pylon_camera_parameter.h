@@ -177,6 +177,22 @@ public:
      */
     double gamma_;
 
+    bool whitebalance_given_;
+
+    /**
+     * White balance mode:
+     * 0: manual, 1: once, 2: continuous
+     * For manual, whitebalance_ratio_red_, whitebalance_ratio_green_, whitebalance_ratio_blue_
+     * must be set
+     */
+    int whitebalance_mode_;
+
+    double whitebalance_ratio_red_;
+
+    double whitebalance_ratio_green_;
+
+    double whitebalance_ratio_blue_;
+
     /**
      * Flag which indicates if the gamma correction value is provided and
      * hence should be set during startup

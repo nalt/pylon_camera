@@ -44,6 +44,9 @@ struct USBCameraTrait
 {
     typedef Pylon::CBaslerUsbInstantCamera CBaslerInstantCameraT;
     typedef Basler_UsbCameraParams::ExposureAutoEnums ExposureAutoEnums;
+    typedef Basler_UsbCameraParams::BalanceWhiteAutoEnums BalanceWhiteAutoEnums;
+    typedef Basler_UsbCameraParams::BalanceRatioSelectorEnums BalanceRatioSelectorEnums;
+
     typedef Basler_UsbCameraParams::GainAutoEnums GainAutoEnums;
     typedef Basler_UsbCameraParams::PixelFormatEnums PixelFormatEnums;
     typedef Basler_UsbCameraParams::PixelSizeEnums PixelSizeEnums;
@@ -125,6 +128,7 @@ bool PylonUSBCamera::applyCamSpecificStartupSettings(const PylonCameraParameter&
                 << e.GetDescription());
         return false;
     }
+
     return true;
 }
 
@@ -216,6 +220,62 @@ USBCameraTrait::GainType& PylonUSBCamera::gain()
     {
         throw std::runtime_error("Error while accessing Gain in PylonUSBCamera");
     }
+}
+
+template <>
+bool PylonUSBCamera::setWhiteBalance(const int& mode, const float& red, const float& green, const float& blue)
+{
+    if ( !GenApi::IsAvailable(cam_->BalanceWhiteAuto) ||  !GenApi::IsAvailable(cam_->BalanceRatio) )
+    {
+        ROS_ERROR_STREAM("Error while trying to set white balance: cam.BalanceWhiteAuto NodeMap is"
+                                 << " not available!");
+        return false;
+    }
+
+    try {
+        double rr, rg, rb;
+        switch (mode) {
+            case 0:
+                cam_->BalanceWhiteAuto.SetValue(BalanceWhiteAutoEnums::BalanceWhiteAuto_Off);
+                break;
+            case 1:
+                cam_->BalanceWhiteAuto.SetValue(BalanceWhiteAutoEnums::BalanceWhiteAuto_Once);
+                break;
+            case 2:
+                cam_->BalanceWhiteAuto.SetValue(BalanceWhiteAutoEnums::BalanceWhiteAuto_Continuous);
+                break;
+            default:
+                ROS_ERROR_STREAM("Invalid white balance mode");
+                return false;
+                break;
+        }
+        cam_->BalanceWhiteAuto.SetValue(BalanceWhiteAutoEnums::BalanceWhiteAuto_Off); // BalanceWhiteAuto_Once BalanceWhiteAuto_Continuous BalanceWhiteAuto_Off
+        cam_->BalanceRatioSelector.SetValue(BalanceRatioSelectorEnums::BalanceRatioSelector_Red);
+        ROS_INFO_STREAM("Cam has manual white balance range for red: ["
+                                << cam_->BalanceRatio.GetMin() << " - "
+                                << cam_->BalanceRatio.GetMax()
+                                << "].");
+        rr = cam_->BalanceRatio.GetValue();
+        if (mode == 0)
+            cam_->BalanceRatio.SetValue(red);
+
+        cam_->BalanceRatioSelector.SetValue(BalanceRatioSelectorEnums::BalanceRatioSelector_Green);
+        rg = cam_->BalanceRatio.GetValue();
+        if (mode == 0)
+            cam_->BalanceRatio.SetValue(green);
+
+        cam_->BalanceRatioSelector.SetValue(BalanceRatioSelectorEnums::BalanceRatioSelector_Blue);
+        rb = cam_->BalanceRatio.GetValue();
+        if (mode == 0)
+            cam_->BalanceRatio.SetValue(blue);
+        ROS_INFO_STREAM("White Balance ratios rgb:" << rr << "," << rg << "," << rb);
+    }
+    catch ( const GenICam::GenericException &e )
+    {
+        ROS_ERROR_STREAM("An exception while setting white balance occurred: " << e.GetDescription());
+        return false;
+    }
+    return true;
 }
 
 template <>

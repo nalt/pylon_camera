@@ -44,6 +44,9 @@ struct GigECameraTrait
 {
     typedef Pylon::CBaslerGigEInstantCamera CBaslerInstantCameraT;
     typedef Basler_GigECameraParams::ExposureAutoEnums ExposureAutoEnums;
+    typedef Basler_GigECameraParams::BalanceWhiteAutoEnums BalanceWhiteAutoEnums;
+    typedef Basler_GigECameraParams::BalanceRatioSelectorEnums BalanceRatioSelectorEnums;
+
     typedef Basler_GigECameraParams::GainAutoEnums GainAutoEnums;
     typedef Basler_GigECameraParams::PixelFormatEnums PixelFormatEnums;
     typedef Basler_GigECameraParams::PixelSizeEnums PixelSizeEnums;
@@ -291,6 +294,15 @@ GigECameraTrait::GainType& PylonGigECamera::gain()
     {
         throw std::runtime_error("Error while accessing GainRaw in PylonGigECamera");
     }
+}
+
+template <>
+bool PylonGigECamera::setWhiteBalance(const int& mode, const float& red, const float& green, const float& blue)
+{
+    ROS_WARN_STREAM("White balance not yet implementd for GigE, only for USB. See pylon_camera_gige.hpp.");
+    // TODO: Copy implementaion from pylon_camera_usb.hpp, adapt API (change BalanceRatio to BalanceRatioAbs),
+    // test with a real camera.
+    return false;
 }
 
 /**

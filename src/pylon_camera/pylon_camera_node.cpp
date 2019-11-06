@@ -336,6 +336,32 @@ bool PylonCameraNode::startGrabbing()
                 << reached_gain);
     }
 
+    if ( pylon_camera_parameter_set_.whitebalance_given_ )
+    {
+        std::string mode = "unknown";
+        switch (pylon_camera_parameter_set_.whitebalance_mode_) {
+            case 0:
+                mode = "manual";
+                break;
+            case 1:
+                mode = "once";
+                break;
+            case 2:
+                mode = "continuous";
+                break;
+        }
+
+        setWhiteBalance(pylon_camera_parameter_set_.whitebalance_mode_,
+                        pylon_camera_parameter_set_.whitebalance_ratio_red_,
+                        pylon_camera_parameter_set_.whitebalance_ratio_green_,
+                        pylon_camera_parameter_set_.whitebalance_ratio_blue_);
+        ROS_INFO_STREAM("Setting whitebalance to: "
+                                << "mode: " << pylon_camera_parameter_set_.whitebalance_mode_<< " (" << mode << "), rgb ratio: "
+                                << pylon_camera_parameter_set_.whitebalance_ratio_red_ << ", "
+                                << pylon_camera_parameter_set_.whitebalance_ratio_green_ << ", "
+                                << pylon_camera_parameter_set_.whitebalance_ratio_blue_ << ".");
+    }
+
     if ( pylon_camera_parameter_set_.gamma_given_ )
     {
         float reached_gamma;
@@ -1205,6 +1231,44 @@ bool PylonCameraNode::setGainCallback(camera_control_msgs::SetGain::Request &req
 {
     res.success = setGain(req.target_gain, res.reached_gain);
     return true;
+}
+
+bool PylonCameraNode::setWhiteBalance(const int &mode, const float &red, const float &green, const float &blue)
+{
+    boost::lock_guard<boost::recursive_mutex> lock(grab_mutex_);
+    if ( !pylon_camera_->isReady() )
+    {
+        ROS_WARN("Error in setWhiteBalance(): pylon_camera_ is not ready!");
+        return false;
+    }
+
+    if ( pylon_camera_->setWhiteBalance(mode, red, green, blue) )
+    {
+        return true;
+    }
+    else  // retry till timeout
+    {
+        // wait for max 5s till the cam has updated the exposure
+        ros::Rate r(10.0);
+        ros::Time timeout(ros::Time::now() + ros::Duration(5.0));
+        while ( ros::ok() )
+        {
+            if ( pylon_camera_->setWhiteBalance(mode, red, green, blue) )
+            {
+                return true;
+            }
+
+            if ( ros::Time::now() > timeout )
+            {
+                break;
+            }
+            r.sleep();
+        }
+        ROS_ERROR_STREAM("Error in setWhiteBalance(): Unable to set before timeout");
+        ROS_ERROR_STREAM("Error in setWhiteBalance(): Unable to set before timeout");
+        ROS_ERROR_STREAM("Error in setWhiteBalance(): Unable to set before timeout");
+        return false;
+    }
 }
 
 bool PylonCameraNode::setGamma(const float& target_gamma, float& reached_gamma)

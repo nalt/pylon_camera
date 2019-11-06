@@ -198,6 +198,16 @@ public:
     virtual bool setGain(const float& target_gain, float& reached_gain) = 0;
 
     /**
+     * Set the white balance mode and ratio
+     * @param mode White balance mode: 0=manual, 1=once, 2=continuos
+     * @param red Ratio for the red channel. Acceptable range is printed on startup.
+     * @param green Ratio for the green channel.
+     * @param blue Ratio for the blue channel.
+     * @return true if white balance was set successfully
+     */
+    virtual bool setWhiteBalance(const int& mode, const float& red, const float& green, const float& blue) = 0;
+
+    /**
      * Sets the target gamma value
      * @param target_gamma the target gamma value.
      * @param reached_gamma the reached gamma value.

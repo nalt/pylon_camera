@@ -88,6 +88,8 @@ public:
 
     virtual bool setGain(const float& target_gain, float& reached_gain);
 
+    virtual bool setWhiteBalance(const int& mode, const float& red, const float& green, const float& blue);
+
     virtual bool setGamma(const float& target_gamma, float& reached_gamma);
 
     virtual bool setBrightness(const int& target_brightness,
@@ -148,6 +150,9 @@ public:
 protected:
     typedef typename CameraTraitT::CBaslerInstantCameraT CBaslerInstantCameraT;
     typedef typename CameraTraitT::ExposureAutoEnums ExposureAutoEnums;
+    typedef typename CameraTraitT::BalanceWhiteAutoEnums BalanceWhiteAutoEnums;
+    typedef typename CameraTraitT::BalanceRatioSelectorEnums BalanceRatioSelectorEnums;
+
     typedef typename CameraTraitT::GainAutoEnums GainAutoEnums;
     typedef typename CameraTraitT::PixelFormatEnums PixelFormatEnums;
     typedef typename CameraTraitT::PixelSizeEnums PixelSizeEnums;

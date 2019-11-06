@@ -104,6 +104,10 @@ The following settings do **NOT** have to be set. Each camera has default values
 - **gain**
   The target gain in percent of the maximal value the camera supports. For USB-Cameras, the gain is in dB, for GigE-Cameras it is given in so called 'device specific units'.
 
+- **whitebalance_mode**
+  Sets the white balance mode: 0 - manual, 1 - once, 2 - continuous.
+  For manual, whitebalance_red, whitebalance_green, whitebalance_blue must be set.
+
 - **gamma**
   Gamma correction of pixel intensity. Adjusts the brightness of the pixel values output by the camera's sensor to account for a non-linearity in the human perception of brightness or of the display system (such as CRT).
 

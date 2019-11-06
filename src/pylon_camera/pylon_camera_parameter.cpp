@@ -58,6 +58,11 @@ PylonCameraParameter::PylonCameraParameter() :
         brightness_continuous_(false),
         exposure_auto_(true),
         gain_auto_(true),
+        whitebalance_given_(false),
+        whitebalance_mode_(2),
+        whitebalance_ratio_red_(1.0),
+        whitebalance_ratio_green_(1.0),
+        whitebalance_ratio_blue_(1.0),
         // #########################
         exposure_search_timeout_(5.),
         auto_exp_upper_lim_(0.0),
@@ -162,6 +167,16 @@ void PylonCameraParameter::readFromRosParameterServer(const ros::NodeHandle& nh)
     {
         nh.getParam("gain", gain_);
         std::cout << "gain is given and has value " << gain_ << std::endl;
+    }
+
+    whitebalance_given_ = nh.hasParam("whitebalance_mode");
+    if ( whitebalance_given_ )
+    {
+        nh.getParam("whitebalance_mode", whitebalance_mode_);
+        nh.getParam("whitebalance_red", whitebalance_ratio_red_);
+        nh.getParam("whitebalance_green", whitebalance_ratio_green_);
+        nh.getParam("whitebalance_blue", whitebalance_ratio_blue_);
+        std::cout << "whitebalance mode is given and has value " << whitebalance_mode_ << std::endl;
     }
 
     gamma_given_ = nh.hasParam("gamma");
