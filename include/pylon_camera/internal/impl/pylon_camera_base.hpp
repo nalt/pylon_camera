@@ -1105,6 +1105,9 @@ std::vector<int> PylonCameraImpl<CameraTraitT>::detectAndCountNumUserOutputs()
     GenApi::CEnumerationPtr output_selector_enumeration_ptr(
                                         node_map.GetNode("UserOutputSelector"));
     GenApi::NodeList_t feature_list;
+    if (!output_selector_enumeration_ptr.IsValid()) {
+      return user_output_vec;
+    }
     output_selector_enumeration_ptr->GetEntries(feature_list);
     for (GenApi::NodeList_t::iterator it = feature_list.begin();
          it != feature_list.end();
